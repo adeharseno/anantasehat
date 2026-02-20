@@ -15,7 +15,7 @@ export default function Footer() {
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                             <div style={{ width: 36, height: 36, background: "var(--primary)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>⚕️</div>
                             <div>
-                                <div style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: 18, color: "white" }}>Ananta Sehat</div>
+                                <div style={{ fontFamily: "Karla, sans-serif", fontWeight: 700, fontSize: 18, color: "white" }}>Ananta Sehat</div>
                                 <div style={{ fontSize: 10, color: "#94A3B8", letterSpacing: 0.5 }}>APOTEK ONLINE</div>
                             </div>
                         </div>
@@ -51,15 +51,22 @@ export default function Footer() {
 
                     {/* Layanan */}
                     <div>
-                        <h4 style={{ color: "white", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 15, marginBottom: 16 }}>Layanan Kami</h4>
+                        <h4 style={{ color: "white", fontFamily: "Karla, sans-serif", fontWeight: 600, fontSize: 15, marginBottom: 16 }}>Layanan Kami</h4>
                         <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                            {["Obat Bebas", "Vitamin & Suplemen", "Herbal & Tradisional", "Alat Kesehatan", "Perawatan Kulit", "P3K & Antiseptik"].map((item) => (
-                                <li key={item}>
-                                    <Link href="/products" style={{ fontSize: 14, color: "#94A3B8", textDecoration: "none", transition: "color 0.2s" }}
+                            {[
+                                { label: "Obat Bebas", href: "/products?category=obat-bebas" },
+                                { label: "Vitamin & Suplemen", href: "/products?category=vitamin-suplemen" },
+                                { label: "Herbal & Tradisional", href: "/products?category=herbal-tradisional" },
+                                { label: "Alat Kesehatan", href: "/products?category=alat-kesehatan" },
+                                { label: "Perawatan Kulit", href: "/products?category=perawatan-kulit" },
+                                { label: "P3K & Antiseptik", href: "/products?category=p3k-antiseptik" },
+                            ].map((item) => (
+                                <li key={item.label}>
+                                    <Link href={item.href} style={{ fontSize: 14, color: "#94A3B8", textDecoration: "none", transition: "color 0.2s" }}
                                         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "white")}
                                         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#94A3B8")}
                                     >
-                                        {item}
+                                        {item.label}
                                     </Link>
                                 </li>
                             ))}
@@ -68,15 +75,21 @@ export default function Footer() {
 
                     {/* Informasi */}
                     <div>
-                        <h4 style={{ color: "white", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 15, marginBottom: 16 }}>Informasi</h4>
+                        <h4 style={{ color: "white", fontFamily: "Karla, sans-serif", fontWeight: 600, fontSize: 15, marginBottom: 16 }}>Informasi</h4>
                         <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                            {["Tentang Kami", "Cara Pemesanan", "Kebijakan Privasi", "Syarat & Ketentuan", "FAQ", "Blog Kesehatan"].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" style={{ fontSize: 14, color: "#94A3B8", textDecoration: "none", transition: "color 0.2s" }}
+                            {[
+                                { label: "Tentang Kami", href: "/tentang-kami" },
+                                { label: "Cara Pemesanan", href: "/cara-pemesanan" },
+                                { label: "Kebijakan Privasi", href: "/kebijakan-privasi" },
+                                { label: "Syarat & Ketentuan", href: "/syarat-ketentuan" },
+                                { label: "FAQ", href: "/faq" },
+                            ].map((item) => (
+                                <li key={item.label}>
+                                    <Link href={item.href} style={{ fontSize: 14, color: "#94A3B8", textDecoration: "none", transition: "color 0.2s" }}
                                         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "white")}
                                         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#94A3B8")}
                                     >
-                                        {item}
+                                        {item.label}
                                     </Link>
                                 </li>
                             ))}
@@ -85,7 +98,7 @@ export default function Footer() {
 
                     {/* Kontak */}
                     <div>
-                        <h4 style={{ color: "white", fontFamily: "Poppins, sans-serif", fontWeight: 600, fontSize: 15, marginBottom: 16 }}>Hubungi Kami</h4>
+                        <h4 style={{ color: "white", fontFamily: "Karla, sans-serif", fontWeight: 600, fontSize: 15, marginBottom: 16 }}>Hubungi Kami</h4>
                         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                             <div style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 14, color: "#94A3B8" }}>
                                 <MapPin size={16} style={{ flexShrink: 0, marginTop: 1 }} />
