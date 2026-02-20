@@ -60,8 +60,8 @@ export default function CartPage() {
                 </div>
             </div>
 
-            <div className="container-custom" style={{ padding: "32px 24px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 28, alignItems: "start" }}>
+            <div className="container-custom" style={{ padding: "24px 16px" }}>
+                <div className="cart-layout">
                     {/* Cart Items */}
                     <div>
                         {/* Free shipping banner */}
@@ -99,8 +99,8 @@ export default function CartPage() {
                         )}
 
                         <div style={{ background: "white", borderRadius: 16, border: "1px solid #F1F5F9", overflow: "hidden" }}>
-                            {/* Header */}
-                            <div style={{
+                            {/* Header — hidden on mobile */}
+                            <div className="cart-table-header" style={{
                                 display: "grid",
                                 gridTemplateColumns: "1fr 100px 140px 80px",
                                 padding: "14px 20px",
@@ -121,11 +121,8 @@ export default function CartPage() {
                             {cartItems.map((item, idx) => (
                                 <div
                                     key={item.product.id}
+                                    className="cart-item-row"
                                     style={{
-                                        display: "grid",
-                                        gridTemplateColumns: "1fr 100px 140px 80px",
-                                        padding: "18px 20px",
-                                        alignItems: "center",
                                         borderBottom: idx < cartItems.length - 1 ? "1px solid #F9FAFB" : "none",
                                         transition: "background 0.15s",
                                     }}
@@ -174,12 +171,12 @@ export default function CartPage() {
                                     </div>
 
                                     {/* Price */}
-                                    <div style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: "var(--gray-700)" }}>
+                                    <div className="cart-col-price" style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: "var(--gray-700)" }}>
                                         {formatPrice(item.product.price)}
                                     </div>
 
                                     {/* Quantity */}
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
+                                    <div className="cart-col-qty" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
                                         <button
                                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                                             style={{
@@ -221,7 +218,7 @@ export default function CartPage() {
                                     </div>
 
                                     {/* Subtotal */}
-                                    <div style={{ textAlign: "right", fontSize: 15, fontWeight: 700, color: "var(--primary)" }}>
+                                    <div className="cart-col-subtotal" style={{ textAlign: "right", fontSize: 15, fontWeight: 700, color: "var(--primary)" }}>
                                         {formatPrice(item.product.price * item.quantity)}
                                     </div>
                                 </div>
@@ -331,6 +328,52 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
+            <style jsx global>{`
+          /* ── Cart layout ── */
+          .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 28px;
+            align-items: start;
+          }
+
+          /* Desktop table row */
+          .cart-item-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 140px 80px;
+            padding: 18px 20px;
+            align-items: center;
+          }
+
+          /* ── Mobile ── */
+          @media (max-width: 768px) {
+            /* Stack summary below items */
+            .cart-layout {
+              grid-template-columns: 1fr !important;
+              gap: 16px;
+            }
+
+            /* Hide table header */
+            .cart-table-header { display: none !important; }
+
+            /* Each cart item: product full width, then price/qty/subtotal in a row */
+            .cart-item-row {
+              display: flex !important;
+              flex-direction: column !important;
+              padding: 14px 16px !important;
+              gap: 10px;
+            }
+            .cart-col-price,
+            .cart-col-qty,
+            .cart-col-subtotal {
+              text-align: left !important;
+            }
+            /* Mini row for price / qty / subtotal */
+            .cart-col-price  { order: 2; font-size: 13px; color: var(--gray-500); }
+            .cart-col-qty    { order: 3; justify-content: flex-start !important; }
+            .cart-col-subtotal { order: 4; font-size: 16px; }
+          }
+        `}</style>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight, Shield, Truck, Clock, Award, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { categories, featuredProducts, formatPrice } from "@/lib/data";
@@ -44,111 +44,130 @@ const bannerSlides = [
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+  const startAutoPlay = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
     }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
-  const slide = bannerSlides[currentSlide];
+  useEffect(() => {
+    startAutoPlay();
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [startAutoPlay]);
+
+  const goTo = useCallback((idx: number) => {
+    setCurrentSlide((idx + bannerSlides.length) % bannerSlides.length);
+    startAutoPlay(); // reset timer on manual nav
+  }, [startAutoPlay]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 50) {
+      goTo(currentSlide + (delta < 0 ? 1 : -1));
+    }
+    touchStartX.current = null;
+  };
 
   return (
     <div>
       {/* Hero Banner */}
-      <section style={{ position: "relative", overflow: "hidden" }}>
-        <div style={{
-          background: slide.bg,
-          transition: "background 0.8s ease",
-          padding: "60px 0 70px",
-          position: "relative",
-        }}>
-          {/* Background Pattern */}
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "radial-gradient(circle at 70% 50%, rgba(255,255,255,0.05) 0%, transparent 60%)",
-          }} />
-
-          <div className="container-custom" style={{ position: "relative", display: "flex", alignItems: "center", gap: 40 }}>
-            <div style={{ flex: 1 }}>
+      <section
+        style={{ position: "relative", overflow: "hidden" }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* All slides stacked — active one fades in */}
+        <div style={{ position: "relative" }}>
+          {bannerSlides.map((s, idx) => (
+            <div
+              key={s.id}
+              style={{
+                background: s.bg,
+                padding: "60px 0 70px",
+                position: idx === 0 ? "relative" : "absolute",
+                inset: 0,
+                opacity: idx === currentSlide ? 1 : 0,
+                transition: "opacity 0.7s ease",
+                pointerEvents: idx === currentSlide ? "auto" : "none",
+                zIndex: idx === currentSlide ? 1 : 0,
+              }}
+            >
+              {/* Background Pattern */}
               <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "rgba(255,255,255,0.15)",
-                borderRadius: 100,
-                padding: "6px 14px",
-                fontSize: 12,
-                color: "rgba(255,255,255,0.95)",
-                fontWeight: 600,
-                marginBottom: 20,
-                backdropFilter: "blur(10px)",
-              }}>
-                {slide.badge}
-              </div>
-              <h1 style={{
-                fontFamily: "Poppins, sans-serif",
-                fontSize: 42,
-                fontWeight: 800,
-                color: "white",
-                lineHeight: 1.2,
-                marginBottom: 16,
-                whiteSpace: "pre-line",
-              }}>
-                {slide.title}
-              </h1>
-              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginBottom: 32, maxWidth: 460, lineHeight: 1.6 }}>
-                {slide.subtitle}
-              </p>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <Link href={slide.ctaLink} className="btn-primary" style={{ background: "white", color: "var(--primary)", fontSize: 15, padding: "12px 28px" }}>
-                  {slide.cta}
-                  <ArrowRight size={16} />
-                </Link>
-                <Link href="/products" style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "12px 28px",
-                  background: "rgba(255,255,255,0.15)",
-                  color: "white",
-                  borderRadius: 8,
-                  textDecoration: "none",
-                  fontWeight: 600,
-                  fontSize: 15,
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  transition: "all 0.2s",
+                position: "absolute", inset: 0,
+                backgroundImage: "radial-gradient(circle at 70% 50%, rgba(255,255,255,0.05) 0%, transparent 60%)",
+              }} />
+
+              <div className="container-custom" style={{ position: "relative", display: "flex", alignItems: "center", gap: 40 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    background: "rgba(255,255,255,0.15)", borderRadius: 100,
+                    padding: "6px 14px", fontSize: 12,
+                    color: "rgba(255,255,255,0.95)", fontWeight: 600,
+                    marginBottom: 20, backdropFilter: "blur(10px)",
+                  }}>
+                    {s.badge}
+                  </div>
+                  <h1 style={{
+                    fontFamily: "Poppins, sans-serif", fontSize: 42, fontWeight: 800,
+                    color: "white", lineHeight: 1.2, marginBottom: 16, whiteSpace: "pre-line",
+                  }}>
+                    {s.title}
+                  </h1>
+                  <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginBottom: 32, maxWidth: 460, lineHeight: 1.6 }}>
+                    {s.subtitle}
+                  </p>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    <Link href={s.ctaLink} className="btn-primary" style={{ background: "white", color: "var(--primary)", fontSize: 15, padding: "12px 28px" }}>
+                      {s.cta} <ArrowRight size={16} />
+                    </Link>
+                    <Link href="/products" style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "12px 28px",
+                      background: "rgba(255,255,255,0.15)", color: "white",
+                      borderRadius: 8, textDecoration: "none",
+                      fontWeight: 600, fontSize: 15,
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255,255,255,0.3)",
+                    }}>
+                      Lihat Semua Produk
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Big emoji bg */}
+                <div style={{
+                  fontSize: 140, opacity: 0.2,
+                  position: "absolute", right: 60, top: "50%",
+                  transform: "translateY(-50%)", lineHeight: 1, userSelect: "none",
                 }}>
-                  Lihat Semua Produk
-                </Link>
+                  {s.emoji}
+                </div>
               </div>
             </div>
+          ))}
 
-            {/* Hero Emoji Art */}
-            <div style={{
-              fontSize: 140,
-              opacity: 0.2,
-              position: "absolute",
-              right: 60,
-              top: "50%",
-              transform: "translateY(-50%)",
-              lineHeight: 1,
-              userSelect: "none",
-            }}>
-              {slide.emoji}
-            </div>
-          </div>
-
-          {/* Slide dot indicators */}
-          <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Dot indicators — always on top */}
+          <div style={{
+            position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)",
+            display: "flex", gap: 8, alignItems: "center", zIndex: 10,
+          }}>
             {bannerSlides.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentSlide(idx)}
+                onClick={() => goTo(idx)}
                 style={{
-                  width: idx === currentSlide ? 24 : 8,
-                  height: 8, borderRadius: 4,
+                  width: idx === currentSlide ? 24 : 8, height: 8, borderRadius: 4,
                   background: idx === currentSlide ? "white" : "rgba(255,255,255,0.4)",
                   border: "none", cursor: "pointer",
                   transition: "all 0.3s ease", padding: 0,
@@ -157,27 +176,27 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Prev/Next arrows — hidden on mobile */}
+          {/* Prev/Next arrows — hidden on mobile via CSS */}
           <button
             className="slider-arrow"
-            onClick={() => setCurrentSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length)}
+            onClick={() => goTo(currentSlide - 1)}
             style={{
               position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)",
               background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%",
               width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", backdropFilter: "blur(10px)", color: "white",
+              cursor: "pointer", backdropFilter: "blur(10px)", color: "white", zIndex: 10,
             }}
           >
             <ChevronLeft size={20} />
           </button>
           <button
             className="slider-arrow"
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % bannerSlides.length)}
+            onClick={() => goTo(currentSlide + 1)}
             style={{
               position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)",
               background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%",
               width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", backdropFilter: "blur(10px)", color: "white",
+              cursor: "pointer", backdropFilter: "blur(10px)", color: "white", zIndex: 10,
             }}
           >
             <ChevronRight size={20} />
