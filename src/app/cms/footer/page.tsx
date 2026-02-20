@@ -14,7 +14,6 @@ export default function FooterPage() {
     const [currentLink, setCurrentLink] = useState<any>(null);
     const [saving, setSaving] = useState(false);
 
-    // Form data
     const [formData, setFormData] = useState({
         section_name: "Layanan Kami",
         label: "",
@@ -103,79 +102,60 @@ export default function FooterPage() {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-5">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Footer Configuration</h1>
-                    <p className="text-slate-500 mt-1.5 font-medium">Structure and manage navigation links in the website footer.</p>
+                    <h1 className="text-xl font-bold text-slate-900">Footer Links</h1>
+                    <p className="text-slate-500 text-sm mt-0.5">Manage navigation links in the website footer.</p>
                 </div>
                 <button
                     onClick={() => openModal()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2.5 font-bold transition-all shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 active:translate-y-0"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
                 >
-                    <Plus size={20} strokeWidth={3} />
-                    Add Navigation Link
+                    <Plus size={16} />
+                    Add Link
                 </button>
-            </header>
+            </div>
 
             {loading ? (
-                <div className="p-24 flex flex-col items-center justify-center text-slate-400 gap-4">
-                    <Loader2 className="animate-spin text-blue-600" size={40} />
-                    <p className="text-sm font-bold uppercase tracking-widest text-[#0F172A]/40">Gathering Links...</p>
+                <div className="p-12 flex flex-col items-center justify-center text-slate-400 gap-3">
+                    <Loader2 className="animate-spin text-blue-600" size={28} />
+                    <p className="text-xs text-slate-400">Loading links...</p>
                 </div>
             ) : (
-                <div className="grid lg:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-2 gap-4">
                     {SECTIONS.map((section) => (
-                        <div key={section} className="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden flex flex-col group/section hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
-                            <div className="p-7 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                                <div className="flex flex-col">
-                                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight leading-none">{section}</h3>
-                                    <span className="text-[10px] text-slate-400 font-black mt-1 uppercase tracking-widest">
-                                        {links.filter(l => l.section_name === section).length} Total Links
-                                    </span>
-                                </div>
-                                <div className="w-10 h-10 bg-white rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
-                                    <Move size={18} strokeWidth={2.5} />
-                                </div>
+                        <div key={section} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                            <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                <h3 className="text-sm font-bold text-slate-800">{section}</h3>
+                                <span className="text-xs text-slate-400">
+                                    {links.filter(l => l.section_name === section).length} links
+                                </span>
                             </div>
-                            <div className="divide-y divide-slate-100/60 bg-white">
+                            <div className="divide-y divide-slate-50">
                                 {links.filter(l => l.section_name === section).sort((a, b) => (a.order || 0) - (b.order || 0)).map((link) => (
-                                    <div key={link.id} className="p-6 flex items-center justify-between hover:bg-slate-50/80 transition-all group">
-                                        <div className="flex items-center gap-5 min-w-0">
-                                            <div className="w-8 h-8 flex items-center justify-center text-slate-300 font-black text-xs bg-slate-50 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                                {link.order}
-                                            </div>
+                                    <div key={link.id} className="px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors group">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <span className="text-xs text-slate-300 font-medium w-5 text-center shrink-0">{link.order}</span>
                                             <div className="min-w-0">
-                                                <div className="font-extrabold text-slate-900 leading-snug truncate">{link.label}</div>
-                                                <div className="text-[11px] font-bold text-blue-500 truncate mt-0.5 tracking-tight group-hover:underline underline-offset-4">{link.url}</div>
+                                                <div className="text-sm font-medium text-slate-800 truncate">{link.label}</div>
+                                                <div className="text-xs text-blue-500 truncate">{link.url}</div>
                                             </div>
                                         </div>
-                                        <div className="flex gap-1 items-center ml-4 opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
-                                            <button
-                                                onClick={() => openModal(link)}
-                                                className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-200"
-                                                title="Edit Link"
-                                            >
-                                                <Edit size={18} />
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                            <button onClick={() => openModal(link)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+                                                <Edit size={14} />
                                             </button>
-                                            <button
-                                                onClick={() => handleDelete(link.id)}
-                                                className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-200"
-                                                title="Delete Link"
-                                            >
-                                                <Trash2 size={18} />
+                                            <button onClick={() => handleDelete(link.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </div>
                                 ))}
                                 {links.filter(l => l.section_name === section).length === 0 && (
-                                    <div className="p-16 flex flex-col items-center justify-center text-center">
-                                        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mb-4">
-                                            <Plus size={24} />
-                                        </div>
-                                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic">
-                                            Empty Section
-                                        </p>
+                                    <div className="px-5 py-8 text-center text-sm text-slate-400">
+                                        No links in this section
                                     </div>
                                 )}
                             </div>
@@ -184,29 +164,27 @@ export default function FooterPage() {
                 </div>
             )}
 
+            {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-4xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center p-8 border-b border-slate-100 bg-slate-50/50">
-                            <div>
-                                <h3 className="text-2xl font-black text-slate-900 leading-none">
-                                    {currentLink ? "Modify Link" : "Add Link"}
-                                </h3>
-                                <p className="text-slate-500 text-sm font-medium mt-2">Footer navigation settings.</p>
-                            </div>
+                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+                            <h3 className="text-base font-bold text-slate-900">
+                                {currentLink ? "Edit Link" : "Add Link"}
+                            </h3>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-200"
+                                className="text-slate-400 hover:text-slate-600 transition-colors"
                             >
-                                <X size={20} strokeWidth={3} />
+                                <X size={20} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSave} className="p-8 space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Destination Section</label>
+                        <form onSubmit={handleSave} className="p-5 space-y-4">
+                            <div>
+                                <label className="block text-xs font-medium text-slate-500 mb-1">Section</label>
                                 <select
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 appearance-none cursor-pointer"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white"
                                     value={formData.section_name}
                                     onChange={(e) => setFormData({ ...formData, section_name: e.target.value })}
                                 >
@@ -214,58 +192,56 @@ export default function FooterPage() {
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Display Label</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-500 mb-1">Label</label>
                                     <input
                                         type="text"
                                         required
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-900 placeholder:text-slate-400"
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                                         value={formData.label}
                                         onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                                        placeholder="e.g. Terms of Service"
+                                        placeholder="Link Name"
                                     />
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Sort Order</label>
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-500 mb-1">Order</label>
                                     <input
                                         type="number"
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-bold text-slate-900"
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                                         value={formData.order}
                                         onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Link Destination (URL)</label>
+                            <div>
+                                <label className="block text-xs font-medium text-slate-500 mb-1">URL</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-bold text-blue-600 placeholder:text-slate-400"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                                     value={formData.url}
                                     onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                                    placeholder="/legal/terms"
+                                    placeholder="/page-url"
                                 />
-                                <p className="text-[10px] font-bold text-slate-400 px-1 italic">Use relative paths like /shop or full URLs with https://</p>
                             </div>
 
-                            <div className="flex gap-4 pt-4">
+                            <div className="flex gap-3 pt-2">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 px-6 py-4 text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-2xl font-bold transition-all"
+                                    className="flex-1 px-4 py-2 text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-medium transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="flex-2 px-6 py-4 bg-blue-600 text-white rounded-2xl font-black transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 flex items-center justify-center gap-3"
+                                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
-                                    {saving ? <Loader2 className="animate-spin" size={20} /> : null}
-                                    {saving ? "SYNCING..." : "CONFIRM & SAVE"}
+                                    {saving && <Loader2 className="animate-spin" size={16} />}
+                                    {saving ? "Saving..." : "Save"}
                                 </button>
                             </div>
                         </form>

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Search, ArrowUp, ArrowDown, X, HelpCircle, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, X, HelpCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const CATEGORIES = [
@@ -22,7 +22,6 @@ export default function FaqPage() {
     const [currentFaq, setCurrentFaq] = useState<any>(null);
     const [saving, setSaving] = useState(false);
 
-    // Form states
     const [formData, setFormData] = useState({
         question: "",
         answer: "",
@@ -87,7 +86,6 @@ export default function FaqPage() {
 
         try {
             if (currentFaq) {
-                // Update
                 const { data, error } = await supabase
                     .from('faqs')
                     .update(formData)
@@ -98,7 +96,6 @@ export default function FaqPage() {
                 if (error) throw error;
                 setFaqs(faqs.map(f => f.id === currentFaq.id ? data : f));
             } else {
-                // Create
                 const { data, error } = await supabase
                     .from('faqs')
                     .insert([formData])
@@ -117,89 +114,87 @@ export default function FaqPage() {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-5">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">FAQ Management</h1>
-                    <p className="text-slate-500 mt-1.5 font-medium">Manage frequently asked questions and their categories.</p>
+                    <h1 className="text-xl font-bold text-slate-900">FAQ Management</h1>
+                    <p className="text-slate-500 text-sm mt-0.5">Manage frequently asked questions.</p>
                 </div>
                 <button
                     onClick={() => openModal()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2.5 font-bold transition-all shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 active:translate-y-0"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
                 >
-                    <Plus size={20} strokeWidth={3} />
-                    Create New FAQ
+                    <Plus size={16} />
+                    Add FAQ
                 </button>
-            </header>
+            </div>
 
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+            {/* Table */}
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 {loading ? (
-                    <div className="p-24 flex flex-col items-center justify-center text-slate-400 gap-4">
-                        <Loader2 className="animate-spin text-blue-600" size={40} />
-                        <p className="text-sm font-bold uppercase tracking-widest">Fetching Content...</p>
+                    <div className="p-12 flex flex-col items-center justify-center text-slate-400 gap-3">
+                        <Loader2 className="animate-spin text-blue-600" size={28} />
+                        <p className="text-xs text-slate-400">Loading FAQs...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left border-collapse">
+                        <table className="w-full text-sm">
                             <thead>
-                                <tr className="bg-slate-50/50">
-                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-wider text-[11px] w-24">Order</th>
-                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-wider text-[11px]">Category & Question</th>
-                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-wider text-[11px] w-40">Visibility</th>
-                                    <th className="px-8 py-5 font-bold text-slate-400 uppercase tracking-wider text-[11px] text-right w-32">Actions</th>
+                                <tr className="border-b border-slate-100">
+                                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wide w-16">#</th>
+                                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wide">Question</th>
+                                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wide w-32">Status</th>
+                                    <th className="px-5 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wide w-24">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-50">
                                 {faqs.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="px-8 py-20 text-center">
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
-                                                    <HelpCircle size={32} />
-                                                </div>
-                                                <p className="text-slate-400 font-bold uppercase tracking-wide text-xs">No FAQs established yet</p>
+                                        <td colSpan={4} className="px-5 py-12 text-center">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <HelpCircle size={24} className="text-slate-300" />
+                                                <p className="text-sm text-slate-400">No FAQs yet</p>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : (
                                     faqs.map((faq) => (
-                                        <tr key={faq.id} className="hover:bg-slate-50/80 transition-colors group">
-                                            <td className="px-8 py-6 font-black text-slate-900 text-lg">#{faq.order}</td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex flex-col gap-1.5">
-                                                    <span className="inline-flex w-fit px-2.5 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-black uppercase tracking-wider border border-blue-100">
+                                        <tr key={faq.id} className="hover:bg-slate-50 transition-colors">
+                                            <td className="px-5 py-3 text-slate-500 font-medium">{faq.order}</td>
+                                            <td className="px-5 py-3">
+                                                <div>
+                                                    <span className="inline-block px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-medium mb-1">
                                                         {faq.category || "Uncategorized"}
                                                     </span>
-                                                    <div className="font-extrabold text-slate-900 text-base">{faq.question}</div>
-                                                    <div className="text-slate-500 font-medium text-xs line-clamp-1 max-w-2xl">{faq.answer}</div>
+                                                    <div className="font-semibold text-slate-800">{faq.question}</div>
+                                                    <div className="text-slate-400 text-xs line-clamp-1 mt-0.5 max-w-lg">{faq.answer}</div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-5 py-3">
                                                 <span
-                                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-tight ${faq.is_active
-                                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
-                                                        : "bg-slate-100 text-slate-500 border border-slate-200"
+                                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${faq.is_active
+                                                            ? "bg-emerald-50 text-emerald-700"
+                                                            : "bg-slate-100 text-slate-500"
                                                         }`}
                                                 >
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${faq.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                                                    {faq.is_active ? "Public" : "Draft"}
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${faq.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                                                    {faq.is_active ? "Active" : "Draft"}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-1.5">
+                                            <td className="px-5 py-3 text-right">
+                                                <div className="flex items-center justify-end gap-1">
                                                     <button
                                                         onClick={() => openModal(faq)}
-                                                        className="p-2.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-xl transition-all"
-                                                        title="Edit FAQ"
+                                                        className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-md transition-colors"
                                                     >
-                                                        <Edit size={20} />
+                                                        <Edit size={16} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(faq.id)}
-                                                        className="p-2.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all"
-                                                        title="Delete FAQ"
+                                                        className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-md transition-colors"
                                                     >
-                                                        <Trash2 size={20} />
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -212,30 +207,28 @@ export default function FaqPage() {
                 )}
             </div>
 
+            {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-4xl shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center p-8 border-b border-slate-100 bg-slate-50/50">
-                            <div>
-                                <h3 className="text-2xl font-black text-slate-900 leading-none">
-                                    {currentFaq ? "Edit FAQ" : "Create FAQ"}
-                                </h3>
-                                <p className="text-slate-500 text-sm font-medium mt-2">Specify details for the help center.</p>
-                            </div>
+                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+                        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+                            <h3 className="text-base font-bold text-slate-900">
+                                {currentFaq ? "Edit FAQ" : "New FAQ"}
+                            </h3>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-200"
+                                className="text-slate-400 hover:text-slate-600 transition-colors"
                             >
-                                <X size={20} strokeWidth={3} />
+                                <X size={20} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSave} className="p-8 space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Category</label>
+                        <form onSubmit={handleSave} className="p-5 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-500 mb-1">Category</label>
                                     <select
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 appearance-none cursor-pointer"
+                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                     >
@@ -244,46 +237,45 @@ export default function FaqPage() {
                                         ))}
                                     </select>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Order Index</label>
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-500 mb-1">Order</label>
                                     <input
                                         type="number"
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-bold text-slate-900"
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                                         value={formData.order}
                                         onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Question</label>
+                            <div>
+                                <label className="block text-xs font-medium text-slate-500 mb-1">Question</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-extrabold text-slate-900 placeholder:text-slate-400 placeholder:font-bold"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                                     value={formData.question}
                                     onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                                    placeholder="Enter question title..."
+                                    placeholder="Enter question..."
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Detailed Answer</label>
+                            <div>
+                                <label className="block text-xs font-medium text-slate-500 mb-1">Answer</label>
                                 <textarea
                                     required
-                                    rows={5}
-                                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none font-medium text-slate-700 placeholder:text-slate-400"
+                                    rows={4}
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none"
                                     value={formData.answer}
                                     onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                                    placeholder="Provide a clear, helpful response..."
+                                    placeholder="Provide a clear answer..."
                                 />
                             </div>
 
-                            <div className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-200/50">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-slate-900">Visibility Status</span>
-                                    <span className="text-[11px] font-medium text-slate-500 tracking-tight">Toggle whether this FAQ is visible on the website.</span>
+                            <div className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+                                <div>
+                                    <span className="text-sm font-medium text-slate-700">Active</span>
+                                    <p className="text-xs text-slate-400">Show on website</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
@@ -292,31 +284,25 @@ export default function FaqPage() {
                                         checked={formData.is_active}
                                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                     />
-                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 transition-colors"></div>
+                                    <div className="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
                                 </label>
                             </div>
 
-                            <div className="flex gap-4 pt-4">
+                            <div className="flex gap-3 pt-2">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 px-6 py-4 text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-2xl font-bold transition-all"
+                                    className="flex-1 px-4 py-2 text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-medium transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="flex-2 px-6 py-4 bg-blue-600 text-white rounded-2xl font-black transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 flex items-center justify-center gap-3"
+                                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
-                                    {saving ? (
-                                        <>
-                                            <Loader2 className="animate-spin" size={20} />
-                                            <span>SYNCHRONIZING...</span>
-                                        </>
-                                    ) : (
-                                        "PUBLISH CHANGES"
-                                    )}
+                                    {saving && <Loader2 className="animate-spin" size={16} />}
+                                    {saving ? "Saving..." : "Save"}
                                 </button>
                             </div>
                         </form>

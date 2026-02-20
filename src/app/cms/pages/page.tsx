@@ -26,72 +26,49 @@ export default function PagesListPage() {
     }, []);
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <header>
-                <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Content Management</h1>
-                <p className="text-slate-500 mt-1.5 font-medium">Edit and maintain static pages and legal documentation.</p>
-            </header>
+        <div className="space-y-5">
+            <div>
+                <h1 className="text-xl font-bold text-slate-900">Content Pages</h1>
+                <p className="text-slate-500 text-sm mt-0.5">Edit and manage static pages.</p>
+            </div>
 
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-200/60 overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 {loading ? (
-                    <div className="p-24 flex flex-col items-center justify-center text-slate-400 gap-4">
-                        <Loader2 className="animate-spin text-blue-600" size={40} />
-                        <p className="text-sm font-bold uppercase tracking-widest text-[#0F172A]/40">Retaining Documents...</p>
+                    <div className="p-12 flex flex-col items-center justify-center text-slate-400 gap-3">
+                        <Loader2 className="animate-spin text-blue-600" size={28} />
+                        <p className="text-xs text-slate-400">Loading pages...</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-slate-100/60">
+                    <div className="divide-y divide-slate-50">
                         {pages.length === 0 ? (
-                            <div className="p-20 text-center flex flex-col items-center gap-4">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200">
-                                    <FileText size={32} />
-                                </div>
-                                <p className="text-slate-400 font-bold uppercase tracking-wide text-xs">No documents available for editing</p>
+                            <div className="p-12 text-center">
+                                <FileText size={24} className="text-slate-300 mx-auto mb-2" />
+                                <p className="text-sm text-slate-400">No pages found</p>
                             </div>
                         ) : (
                             pages.map((page) => (
                                 <Link
                                     key={page.slug}
                                     href={`/cms/pages/${page.slug}`}
-                                    className="group block hover:bg-slate-50/80 transition-all duration-300"
+                                    className="flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors group"
                                 >
-                                    <div className="p-8 flex items-center justify-between">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:scale-105 transition-all duration-300 shadow-sm border border-slate-100 group-hover:border-blue-500">
-                                                <FileText size={28} strokeWidth={1.5} />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{page.title}</h3>
-                                                <div className="flex items-center gap-3 mt-1.5">
-                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Slug: {page.slug}</span>
-                                                    <div className="w-1 h-1 rounded-full bg-slate-200" />
-                                                    <p className="text-xs font-bold text-emerald-500 uppercase tracking-tight">
-                                                        Updated {page.updated_at ? new Date(page.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
-                                                    </p>
-                                                </div>
-                                            </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 bg-slate-100 text-slate-400 rounded-lg flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                            <FileText size={16} />
                                         </div>
-                                        <div className="flex items-center gap-4 text-slate-300 group-hover:text-blue-600 transition-all group-hover:translate-x-2">
-                                            <span className="text-[11px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Edit Document</span>
-                                            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-blue-50 group-hover:border-blue-200">
-                                                <ChevronRight size={22} strokeWidth={2.5} />
-                                            </div>
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">{page.title}</h3>
+                                            <p className="text-xs text-slate-400">
+                                                /{page.slug} · Updated {page.updated_at ? new Date(page.updated_at).toLocaleDateString('id-ID') : 'N/A'}
+                                            </p>
                                         </div>
                                     </div>
+                                    <ChevronRight size={16} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
                                 </Link>
                             ))
                         )}
                     </div>
                 )}
-            </div>
-
-            <div className="bg-blue-50/50 rounded-3xl p-8 border border-blue-100/50 flex items-center gap-6">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm">
-                    <Edit size={24} />
-                </div>
-                <div>
-                    <h4 className="font-bold text-slate-900">Dynamic Content Editor</h4>
-                    <p className="text-sm text-slate-500 font-medium">Select a page above to modify its content using the visual editor. All changes are saved instantly but only go live upon publishing.</p>
-                </div>
             </div>
         </div>
     );

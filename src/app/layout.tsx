@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ClientLayout from "@/components/ClientLayout";
 import { ToastProvider } from "@/components/Toast";
+import LayoutShell from "@/components/LayoutShell";
 
 export const metadata: Metadata = {
   title: "Ananta Sehat - Apotek Online Terpercaya",
@@ -28,9 +28,9 @@ export default function RootLayout({
       </head>
       <body>
         <ToastProvider>
-          <ClientLayout>
+          <LayoutShell>
             {children}
-          </ClientLayout>
+          </LayoutShell>
         </ToastProvider>
       </body>
     </html>
