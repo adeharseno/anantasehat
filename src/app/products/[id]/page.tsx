@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, Package, Star, Shield, Truck, Minus, Plus, Check } from "lucide-react";
-import { products, formatPrice } from "@/lib/data";
+import { ShoppingCart, Package, Star, Shield, Truck, Minus, Plus, Check, Loader2 } from "lucide-react";
+import { formatPrice } from "@/lib/data";
+import { getProduct, getProducts } from "@/lib/api";
 import { useStore } from "@/lib/store";
 import { useToast } from "@/components/Toast";
 import ProductCard from "@/components/ProductCard";
@@ -28,7 +29,44 @@ export default function ProductDetailPage() {
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
 
-    const product = products.find((p) => p.id === Number(params.id));
+    const [product, setProduct] = useState<any>(null);
+    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            setLoading(true);
+            try {
+                const idOrSlug = params.id as string;
+                const data = await getProduct(idOrSlug);
+                setProduct(data);
+
+                if (data) {
+                    // Fetch related products (same category)
+                    const allProducts = await getProducts(); // Optimally we should have getRelatedProducts API
+                    const related = allProducts
+                        .filter((p: any) => p.categorySlug === data.categorySlug && p.id !== data.id)
+                        .slice(0, 4);
+                    setRelatedProducts(related);
+                }
+            } catch (error) {
+                console.error("Failed to fetch product", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (params.id) fetchProduct();
+    }, [params.id]);
+
+    if (loading) {
+        return (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+                <Loader2 className="animate-spin text-blue-600" size={40} />
+            </div>
+        );
+    }
+
     if (!product) {
         return (
             <div style={{ textAlign: "center", padding: "80px 20px" }}>
@@ -38,10 +76,6 @@ export default function ProductDetailPage() {
             </div>
         );
     }
-
-    const relatedProducts = products
-        .filter((p) => p.categorySlug === product.categorySlug && p.id !== product.id)
-        .slice(0, 4);
 
     const handleAddToCart = () => {
         setAdding(true);

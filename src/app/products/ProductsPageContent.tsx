@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { products, categories, formatPrice } from "@/lib/data";
+import { products as staticProducts, categories as staticCategories, formatPrice } from "@/lib/data";
+import { getProducts, getCategories } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
 
 const ITEMS_PER_PAGE = 12;
@@ -19,6 +20,11 @@ export default function ProductsPageContent() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // Data states
+    const [products, setProducts] = useState(staticProducts);
+    const [categories, setCategories] = useState(staticCategories);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         const cat = searchParams.get("category") || "";
         const search = searchParams.get("search") || "";
@@ -26,6 +32,26 @@ export default function ProductsPageContent() {
         setSearchQuery(search);
         setCurrentPage(1);
     }, [searchParams]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const [prodsData, catsData] = await Promise.all([
+                    getProducts(),
+                    getCategories()
+                ]);
+
+                if (prodsData && prodsData.length > 0) setProducts(prodsData);
+                if (catsData && catsData.length > 0) setCategories(catsData);
+            } catch (error) {
+                console.error("Error fetching products content:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const filtered = useMemo(() => {
         let result = [...products];
@@ -38,7 +64,7 @@ export default function ProductsPageContent() {
             case "name_asc": result.sort((a, b) => a.name.localeCompare(b.name)); break;
         }
         return result;
-    }, [selectedCategory, searchQuery, priceMax, sortBy]);
+    }, [selectedCategory, searchQuery, priceMax, sortBy, products]);
 
     const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
     const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);

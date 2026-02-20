@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight, Shield, Truck, Clock, Award, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { categories, featuredProducts, formatPrice } from "@/lib/data";
+import { categories as staticCategories, featuredProducts as staticFeaturedProducts, formatPrice } from "@/lib/data"; // Keep as fallback
+import { getBanners, getCategories, getProducts, getTestimonials, getWhyChooseUs, getPromoBanners } from "@/lib/api"; // CMS API
 import ProductCard from "@/components/ProductCard";
 
-const bannerSlides = [
+const staticBannerSlides = [
   {
     id: 1,
     title: "Kesehatan Optimal\nDimulai dari Sini",
@@ -42,27 +43,88 @@ const bannerSlides = [
   },
 ];
 
+const staticWhyChooseUs = [
+  { id: 1, icon: "🏅", title: "100% Produk Asli", desc: "Semua produk kami berlisensi resmi BPOM dan terjamin keasliannya" },
+  { id: 2, icon: "🚀", title: "Pengiriman Cepat", desc: "Estimasi pengiriman 1-3 hari kerja ke seluruh Indonesia" },
+  { id: 3, icon: "💬", title: "Konsultasi Gratis", desc: "Konsultasi dengan apoteker kami secara gratis via chat" },
+  { id: 4, icon: "🔒", title: "Transaksi Aman", desc: "Sistem keamanan berlapis SSL untuk melindungi data Anda" },
+];
+
+const staticTestimonials = [
+  { id: 1, name: "Siti Rahayu", role: "Pelanggan Tetap", text: "Produknya asli semua, pengiriman cepat dan aman. Sudah 3 tahun belanja di sini, tidak pernah kecewa!", rating: 5 },
+  { id: 2, name: "Budi Santoso", role: "Pelanggan Baru", text: "Harga terjangkau, banyak pilihan produk. Customer service juga sangat responsif dan membantu.", rating: 5 },
+  { id: 3, name: "Dewi Kusuma", role: "Pelanggan Setia", text: "Mudah banget belanja di sini, bisa konsultasi langsung dengan apoteker. Sangat recommended!", rating: 5 },
+];
+
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Data states
+  const [bannerSlides, setBannerSlides] = useState(staticBannerSlides);
+  const [categories, setCategories] = useState(staticCategories);
+  const [featuredProducts, setFeaturedProducts] = useState(staticFeaturedProducts);
+  const [testimonials, setTestimonials] = useState<any[]>(staticTestimonials);
+  const [whyChooseUs, setWhyChooseUs] = useState<any[]>(staticWhyChooseUs);
+  const [promoBanner, setPromoBanner] = useState<any>(null);
+
+  useEffect(() => {
+    // Fetch CMS Data
+    const fetchData = async () => {
+      try {
+        const [bannersData, catsData, prodsData, testimsData, whyData, promoData] = await Promise.all([
+          getBanners(),
+          getCategories(),
+          getProducts(),
+          getTestimonials(),
+          getWhyChooseUs(),
+          getPromoBanners('home_middle')
+        ]);
+
+        if (bannersData && bannersData.length > 0) {
+          // Map CMS banners to slide format if needed, or just use if structure matches
+          // For now, let's keep static banners if CMS returns empty to avoid breaking layout
+          // Ideally map Supabase structure to UI structure
+        }
+
+        if (catsData && catsData.length > 0) setCategories(catsData);
+
+        // Filter featured products
+        if (prodsData && prodsData.length > 0) {
+          // Assuming we want to show some products as featured
+          setFeaturedProducts(prodsData.slice(0, 8));
+        }
+
+        if (testimsData && testimsData.length > 0) setTestimonials(testimsData);
+        if (whyData && whyData.length > 0) setWhyChooseUs(whyData);
+        if (promoData && promoData.length > 0) setPromoBanner(promoData[0]);
+
+      } catch (error) {
+        console.error("Failed to fetch CMS data", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
 
   const startAutoPlay = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
     }, 5000);
-  }, []);
+  }, [bannerSlides.length]);
 
   useEffect(() => {
     startAutoPlay();
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [startAutoPlay]);
+  }, [startAutoPlay]); // Re-run if autoplay logic changes
 
   const goTo = useCallback((idx: number) => {
     setCurrentSlide((idx + bannerSlides.length) % bannerSlides.length);
     startAutoPlay(); // reset timer on manual nav
-  }, [startAutoPlay]);
+  }, [startAutoPlay, bannerSlides.length]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -91,7 +153,7 @@ export default function HomePage() {
             <div
               key={s.id}
               style={{
-                background: s.bg,
+                background: s.bg || "var(--primary)",
                 padding: "60px 0 70px",
                 position: idx === 0 ? "relative" : "absolute",
                 inset: 0,
@@ -109,15 +171,17 @@ export default function HomePage() {
 
               <div className="container-custom" style={{ position: "relative", display: "flex", alignItems: "center", gap: 40 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{
-                    display: "inline-flex", alignItems: "center", gap: 6,
-                    background: "rgba(255,255,255,0.15)", borderRadius: 100,
-                    padding: "6px 14px", fontSize: 12,
-                    color: "rgba(255,255,255,0.95)", fontWeight: 600,
-                    marginBottom: 20, backdropFilter: "blur(10px)",
-                  }}>
-                    {s.badge}
-                  </div>
+                  {(s as any).badge && (
+                    <div style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      background: "rgba(255,255,255,0.15)", borderRadius: 100,
+                      padding: "6px 14px", fontSize: 12,
+                      color: "rgba(255,255,255,0.95)", fontWeight: 600,
+                      marginBottom: 20, backdropFilter: "blur(10px)",
+                    }}>
+                      {(s as any).badge}
+                    </div>
+                  )}
                   <h1 className="banner-title" style={{
                     fontFamily: "Karla, sans-serif", fontSize: 42, fontWeight: 800,
                     color: "white", lineHeight: 1.2, marginBottom: 16, whiteSpace: "pre-line",
@@ -125,11 +189,11 @@ export default function HomePage() {
                     {s.title}
                   </h1>
                   <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginBottom: 32, maxWidth: 460, lineHeight: 1.6 }}>
-                    {s.subtitle}
+                    {(s as any).subtitle}
                   </p>
                   <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                    <Link href={s.ctaLink} className="btn-primary" style={{ background: "white", color: "var(--primary)", fontSize: 15, padding: "12px 28px" }}>
-                      {s.cta} <ArrowRight size={16} />
+                    <Link href={(s as any).ctaLink || "#"} className="btn-primary" style={{ background: "white", color: "var(--primary)", fontSize: 15, padding: "12px 28px" }}>
+                      {(s as any).cta || "Learn More"} <ArrowRight size={16} />
                     </Link>
                     <Link href="/products" style={{
                       display: "inline-flex", alignItems: "center", gap: 6,
@@ -151,7 +215,7 @@ export default function HomePage() {
                   position: "absolute", right: 60, top: "50%",
                   transform: "translateY(-50%)", lineHeight: 1, userSelect: "none",
                 }}>
-                  {s.emoji}
+                  {(s as any).emoji}
                 </div>
               </div>
             </div>
@@ -255,9 +319,9 @@ export default function HomePage() {
                 }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLElement;
-                    el.style.borderColor = cat.color;
+                    el.style.borderColor = cat.color || "#3B82F6";
                     el.style.transform = "translateY(-4px)";
-                    el.style.boxShadow = `0 12px 30px ${cat.color}22`;
+                    el.style.boxShadow = `0 12px 30px ${cat.color || "#3B82F6"}22`;
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
@@ -270,20 +334,20 @@ export default function HomePage() {
                     width: 52,
                     height: 52,
                     borderRadius: 14,
-                    background: `${cat.color}15`,
+                    background: `${cat.color || "#3B82F6"}15`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 24,
                     margin: "0 auto 12px",
                   }}>
-                    {cat.icon}
+                    {cat.icon || "📦"}
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "var(--gray-700)", marginBottom: 4, lineHeight: 1.3 }}>
                     {cat.name}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--gray-400)" }}>
-                    {cat.count} produk
+                    {cat.count !== undefined ? `${cat.count} produk` : "Lihat produk"}
                   </div>
                 </div>
               </Link>
@@ -312,13 +376,13 @@ export default function HomePage() {
                 🔥 Promo Spesial Hari Ini
               </div>
               <h3 style={{ fontFamily: "Poppins,sans-serif", fontSize: 20, fontWeight: 700, color: "white", marginBottom: 4 }}>
-                Gratis Ongkir untuk Semua Produk
+                {promoBanner ? promoBanner.title : "Gratis Ongkir untuk Semua Produk"}
               </h3>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
                 Minimum pembelian Rp150.000 • Berlaku hari ini saja!
               </p>
             </div>
-            <Link href="/products" style={{
+            <Link href={promoBanner ? promoBanner.link || "/products" : "/products"} style={{
               background: "white", color: "#0891B2",
               padding: "11px 24px", borderRadius: 10,
               textDecoration: "none", fontWeight: 700, fontSize: 14,
@@ -360,12 +424,7 @@ export default function HomePage() {
             <p className="section-subtitle">Apotek online terpercaya dengan pelayanan terbaik</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 24 }}>
-            {[
-              { icon: "🏅", title: "100% Produk Asli", desc: "Semua produk kami berlisensi resmi BPOM dan terjamin keasliannya" },
-              { icon: "🚀", title: "Pengiriman Cepat", desc: "Estimasi pengiriman 1-3 hari kerja ke seluruh Indonesia" },
-              { icon: "💬", title: "Konsultasi Gratis", desc: "Konsultasi dengan apoteker kami secara gratis via chat" },
-              { icon: "🔒", title: "Transaksi Aman", desc: "Sistem keamanan berlapis SSL untuk melindungi data Anda" },
-            ].map((item, i) => (
+            {whyChooseUs.map((item, i) => (
               <div key={i} style={{
                 background: "white",
                 borderRadius: 16,
@@ -377,9 +436,9 @@ export default function HomePage() {
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(-4px)")}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(0)")}
               >
-                <div style={{ fontSize: 40, marginBottom: 14 }}>{item.icon}</div>
+                <div style={{ fontSize: 40, marginBottom: 14 }}>{item.icon || "✨"}</div>
                 <h4 style={{ fontFamily: "Poppins, sans-serif", fontSize: 16, fontWeight: 700, color: "var(--gray-800)", marginBottom: 8 }}>{item.title}</h4>
-                <p style={{ fontSize: 13, color: "var(--gray-500)", lineHeight: 1.6 }}>{item.desc}</p>
+                <p style={{ fontSize: 13, color: "var(--gray-500)", lineHeight: 1.6 }}>{item.description || item.desc}</p>
               </div>
             ))}
           </div>
@@ -394,11 +453,7 @@ export default function HomePage() {
             <p className="section-subtitle">Kepuasan pelanggan adalah prioritas utama kami</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
-            {[
-              { name: "Siti Rahayu", role: "Pelanggan Tetap", text: "Produknya asli semua, pengiriman cepat dan aman. Sudah 3 tahun belanja di sini, tidak pernah kecewa!", rating: 5 },
-              { name: "Budi Santoso", role: "Pelanggan Baru", text: "Harga terjangkau, banyak pilihan produk. Customer service juga sangat responsif dan membantu.", rating: 5 },
-              { name: "Dewi Kusuma", role: "Pelanggan Setia", text: "Mudah banget belanja di sini, bisa konsultasi langsung dengan apoteker. Sangat recommended!", rating: 5 },
-            ].map((review, i) => (
+            {testimonials.map((review, i) => (
               <div key={i} style={{
                 background: "white",
                 borderRadius: 16,
@@ -407,12 +462,12 @@ export default function HomePage() {
                 border: "1px solid #F1F5F9",
               }}>
                 <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
-                  {Array.from({ length: review.rating }).map((_, si) => (
+                  {Array.from({ length: review.rating || 5 }).map((_, si) => (
                     <Star key={si} size={14} fill="#F59E0B" color="#F59E0B" />
                   ))}
                 </div>
                 <p style={{ fontSize: 14, color: "var(--gray-600)", lineHeight: 1.7, marginBottom: 16, fontStyle: "italic" }}>
-                  &quot;{review.text}&quot;
+                  &quot;{review.text || review.message}&quot;
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{
@@ -421,7 +476,7 @@ export default function HomePage() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "white", fontWeight: 700, fontSize: 14,
                   }}>
-                    {review.name[0]}
+                    {review.name ? review.name[0] : "A"}
                   </div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: "var(--gray-800)" }}>{review.name}</div>

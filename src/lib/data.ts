@@ -1,6 +1,7 @@
 export interface Product {
-  id: number;
+  id: number | string;
   name: string;
+  slug?: string;
   category: string;
   categorySlug: string;
   price: number;
@@ -13,7 +14,7 @@ export interface Product {
 }
 
 export interface Category {
-  id: number;
+  id: number | string;
   name: string;
   slug: string;
   icon: string;

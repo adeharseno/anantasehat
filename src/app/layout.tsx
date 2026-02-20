@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import ClientLayout from "@/components/ClientLayout";
 import { ToastProvider } from "@/components/Toast";
 
 export const metadata: Metadata = {
@@ -29,11 +28,9 @@ export default function RootLayout({
       </head>
       <body>
         <ToastProvider>
-          <Navbar />
-          <main style={{ minHeight: "calc(100vh - 80px)" }}>
+          <ClientLayout>
             {children}
-          </main>
-          <Footer />
+          </ClientLayout>
         </ToastProvider>
       </body>
     </html>
