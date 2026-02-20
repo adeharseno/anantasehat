@@ -2,32 +2,39 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingCart, User, Search, Menu, X, Phone, ChevronDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 
 export default function Navbar() {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [scrolled, setScrolled] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [query, setQuery] = useState("");
     const pathname = usePathname();
+    const router = useRouter();
     const { getCartCount, isLoggedIn, user } = useStore();
     const cartCount = getCartCount();
 
     useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 10);
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        const onScroll = () => setScrolled(window.scrollY > 10);
+        window.addEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    const handleSearch = (e: React.FormEvent) => {
+    /* Close drawers on route change */
+    useEffect(() => { setMenuOpen(false); setSearchOpen(false); }, [pathname]);
+
+    const doSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (searchQuery.trim()) {
-            window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`;
+        if (query.trim()) {
+            router.push(`/products?search=${encodeURIComponent(query.trim())}`);
+            setQuery("");
+            setSearchOpen(false);
         }
     };
 
-    const navLinks = [
+    const NAV = [
         { href: "/", label: "Beranda" },
         { href: "/products", label: "Produk" },
         { href: "/products?category=vitamin-suplemen", label: "Vitamin" },
@@ -36,168 +43,142 @@ export default function Navbar() {
 
     return (
         <>
-            {/* Top Bar */}
-            <div style={{ background: "var(--primary)", padding: "6px 0" }}>
-                <div className="container-custom" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 12, color: "rgba(255,255,255,0.9)" }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <Phone size={12} />
-                            CS: 0800-1-ANANTA (Mon-Sat 08.00-20.00)
+            {/* ── Top info bar ── */}
+            <div style={{ background: "var(--primary)", padding: "5px 0" }}>
+                <div className="container-custom" style={{
+                    padding: "0 16px",
+                    display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8,
+                }}>
+                    {/* Left: phone */}
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        📞 0800-1-ANANTA (Sen–Sab 08–20)
+                    </span>
+                    {/* Right: shipping + login */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                        <span className="topbar-shipping" style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", whiteSpace: "nowrap" }}>
+                            🚚 Gratis ongkir min. Rp150.000
                         </span>
-                        <span>|</span>
-                        <span>🚚 Gratis Ongkir min. pembelian Rp150.000</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "rgba(255,255,255,0.9)" }}>
                         {isLoggedIn ? (
-                            <Link href="/profile" style={{ color: "rgba(255,255,255,0.9)", textDecoration: "none" }}>
+                            <Link href="/profile" style={{ fontSize: 11, color: "white", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
                                 Halo, {user?.name?.split(" ")[0]}!
                             </Link>
                         ) : (
-                            <>
-                                <Link href="/login" style={{ color: "rgba(255,255,255,0.9)", textDecoration: "none" }}>Masuk</Link>
+                            <div style={{ display: "flex", gap: 8, fontSize: 11, color: "rgba(255,255,255,0.9)" }}>
+                                <Link href="/login" style={{ color: "inherit", textDecoration: "none" }}>Masuk</Link>
                                 <span>|</span>
-                                <Link href="/register" style={{ color: "rgba(255,255,255,0.9)", textDecoration: "none" }}>Daftar</Link>
-                            </>
+                                <Link href="/register" style={{ color: "inherit", textDecoration: "none" }}>Daftar</Link>
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* Main Navbar */}
-            <nav
-                style={{
-                    background: "white",
-                    boxShadow: isScrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "0 1px 0 #E5E7EB",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 1000,
-                    transition: "box-shadow 0.3s ease",
-                }}
-            >
-                <div className="container-custom" style={{ display: "flex", alignItems: "center", gap: 24, padding: "14px 24px" }}>
-                    {/* Logo */}
+            {/* ── Main Navbar ── */}
+            <nav style={{
+                background: "white",
+                boxShadow: scrolled ? "0 2px 16px rgba(0,0,0,0.09)" : "0 1px 0 #E5E7EB",
+                position: "sticky", top: 0, zIndex: 999,
+                transition: "box-shadow 0.3s",
+            }}>
+                <div className="container-custom" style={{
+                    padding: "0 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    height: 58,
+                }}>
+                    {/* ── Logo (stays left) ── */}
                     <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <div style={{
-                                width: 36,
-                                height: 36,
-                                background: "var(--primary)",
-                                borderRadius: 10,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: 18,
-                            }}>
-                                ⚕️
-                            </div>
-                            <div>
-                                <div style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, fontSize: 18, color: "var(--primary)", lineHeight: 1.1 }}>
+                                width: 34, height: 34, background: "var(--primary)",
+                                borderRadius: 9, display: "flex", alignItems: "center",
+                                justifyContent: "center", fontSize: 17,
+                            }}>⚕️</div>
+                            <div className="logo-text">
+                                <div style={{ fontFamily: "Poppins,sans-serif", fontWeight: 700, fontSize: 16, color: "var(--primary)", lineHeight: 1.1 }}>
                                     Ananta Sehat
                                 </div>
-                                <div style={{ fontSize: 10, color: "var(--gray-400)", letterSpacing: 0.5 }}>APOTEK ONLINE</div>
+                                <div style={{ fontSize: 9, color: "var(--gray-400)", letterSpacing: 0.5 }}>APOTEK ONLINE</div>
                             </div>
                         </div>
                     </Link>
 
-                    {/* Search Bar */}
-                    <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: 480 }}>
-                        <div style={{ position: "relative" }}>
-                            <input
-                                type="text"
-                                placeholder="Cari obat, vitamin, suplemen..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{
-                                    width: "100%",
-                                    padding: "10px 44px 10px 16px",
-                                    borderRadius: 10,
-                                    border: "1.5px solid #E5E7EB",
-                                    fontSize: 14,
-                                    outline: "none",
-                                    fontFamily: "Inter, sans-serif",
-                                    transition: "border-color 0.2s",
-                                }}
-                                onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-                                onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
-                            />
-                            <button
-                                type="submit"
-                                style={{
-                                    position: "absolute",
-                                    right: 8,
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    background: "var(--primary)",
-                                    border: "none",
-                                    borderRadius: 6,
-                                    padding: "6px",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Search size={16} color="white" />
-                            </button>
-                        </div>
-                    </form>
+                    {/* ── Right side: pushed to far right via marginLeft:auto ── */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
 
-                    {/* Nav Links */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 4 }} className="hidden-mobile">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                style={{
-                                    padding: "8px 12px",
-                                    borderRadius: 8,
-                                    fontSize: 14,
-                                    fontWeight: 500,
-                                    color: pathname === link.href ? "var(--primary)" : "var(--gray-600)",
+                        {/* Desktop search bar */}
+                        <form onSubmit={doSearch} className="desktop-search" style={{ width: 360 }}>
+                            <div style={{ position: "relative" }}>
+                                <input
+                                    type="text"
+                                    placeholder="Cari obat, vitamin, suplemen..."
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    style={{
+                                        width: "100%", padding: "8px 40px 8px 14px",
+                                        borderRadius: 10, border: "1.5px solid #E5E7EB",
+                                        fontSize: 13, outline: "none",
+                                        fontFamily: "Inter,sans-serif",
+                                        transition: "border-color .2s",
+                                        boxSizing: "border-box",
+                                    }}
+                                    onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
+                                    onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
+                                />
+                                <button type="submit" style={{
+                                    position: "absolute", right: 7, top: "50%", transform: "translateY(-50%)",
+                                    background: "var(--primary)", border: "none", borderRadius: 6,
+                                    padding: "5px", cursor: "pointer", display: "flex", alignItems: "center",
+                                }}>
+                                    <Search size={14} color="white" />
+                                </button>
+                            </div>
+                        </form>
+
+                        {/* Desktop nav links */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 2 }} className="desktop-nav">
+                            {NAV.map((l) => (
+                                <Link key={l.href} href={l.href} style={{
+                                    padding: "7px 10px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+                                    color: pathname === l.href ? "var(--primary)" : "var(--gray-600)",
                                     textDecoration: "none",
-                                    transition: "all 0.2s ease",
-                                    background: pathname === link.href ? "var(--primary-light)" : "transparent",
-                                    whiteSpace: "nowrap",
-                                }}
-                            >
-                                {link.label}
-                            </Link>
-                        ))}
-                    </div>
+                                    background: pathname === l.href ? "var(--primary-light)" : "transparent",
+                                    whiteSpace: "nowrap", transition: "all .18s",
+                                }}>
+                                    {l.label}
+                                </Link>
+                            ))}
+                        </div>
 
-                    {/* Actions */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                        {/* Cart */}
-                        <Link
-                            href="/cart"
+                        {/* Mobile: search toggle icon */}
+                        <button
+                            onClick={() => setSearchOpen((v) => !v)}
+                            className="mobile-only"
                             style={{
-                                position: "relative",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 40,
-                                height: 40,
-                                borderRadius: 10,
-                                background: cartCount > 0 ? "var(--primary-light)" : "#F3F4F6",
-                                textDecoration: "none",
-                                transition: "all 0.2s",
+                                display: "none",
+                                width: 38, height: 38, borderRadius: 9,
+                                background: "#F3F4F6", border: "none", cursor: "pointer",
+                                alignItems: "center", justifyContent: "center",
                             }}
                         >
-                            <ShoppingCart size={20} color={cartCount > 0 ? "var(--primary)" : "var(--gray-500)"} />
+                            <Search size={17} color="var(--gray-600)" />
+                        </button>
+
+                        {/* Cart icon */}
+                        <Link href="/cart" style={{
+                            position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
+                            width: 38, height: 38, borderRadius: 9,
+                            background: cartCount > 0 ? "var(--primary-light)" : "#F3F4F6",
+                            textDecoration: "none", transition: "all .2s",
+                        }}>
+                            <ShoppingCart size={17} color={cartCount > 0 ? "var(--primary)" : "var(--gray-500)"} />
                             {cartCount > 0 && (
                                 <span style={{
-                                    position: "absolute",
-                                    top: -4,
-                                    right: -4,
-                                    background: "#EF4444",
-                                    color: "white",
-                                    borderRadius: "50%",
-                                    width: 18,
-                                    height: 18,
-                                    fontSize: 10,
-                                    fontWeight: 700,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
+                                    position: "absolute", top: -4, right: -4,
+                                    background: "#EF4444", color: "white",
+                                    borderRadius: "50%", width: 17, height: 17,
+                                    fontSize: 9, fontWeight: 700,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
                                     border: "2px solid white",
                                 }}>
                                     {cartCount > 99 ? "99+" : cartCount}
@@ -205,82 +186,111 @@ export default function Navbar() {
                             )}
                         </Link>
 
-                        {/* User */}
-                        <Link
-                            href={isLoggedIn ? "/profile" : "/login"}
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 6,
-                                padding: "8px 14px",
-                                borderRadius: 10,
-                                background: isLoggedIn ? "var(--primary)" : "#F3F4F6",
-                                textDecoration: "none",
-                                fontSize: 14,
-                                fontWeight: 600,
-                                color: isLoggedIn ? "white" : "var(--gray-600)",
-                                transition: "all 0.2s",
-                            }}
-                        >
-                            <User size={16} />
-                            <span className="hidden-mobile">{isLoggedIn ? user?.name?.split(" ")[0] || "Profil" : "Masuk"}</span>
+                        {/* Profile / Login */}
+                        <Link href={isLoggedIn ? "/profile" : "/login"} style={{
+                            display: "flex", alignItems: "center", gap: 6,
+                            padding: "7px 12px", borderRadius: 9,
+                            background: isLoggedIn ? "var(--primary)" : "#F3F4F6",
+                            textDecoration: "none", fontSize: 13, fontWeight: 600,
+                            color: isLoggedIn ? "white" : "var(--gray-600)",
+                            transition: "all .2s",
+                        }}>
+                            <User size={15} />
+                            <span className="desktop-only" style={{ whiteSpace: "nowrap" }}>
+                                {isLoggedIn ? user?.name?.split(" ")[0] || "Profil" : "Masuk"}
+                            </span>
                         </Link>
 
-                        {/* Mobile Menu Button */}
+                        {/* Mobile hamburger */}
                         <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            onClick={() => setMenuOpen((v) => !v)}
+                            className="mobile-only"
                             style={{
                                 display: "none",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 40,
-                                height: 40,
-                                borderRadius: 10,
-                                background: "#F3F4F6",
-                                border: "none",
-                                cursor: "pointer",
+                                width: 38, height: 38, borderRadius: 9,
+                                background: "#F3F4F6", border: "none", cursor: "pointer",
+                                alignItems: "center", justifyContent: "center",
                             }}
-                            className="show-mobile"
                         >
-                            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                            {menuOpen ? <X size={18} /> : <Menu size={18} />}
                         </button>
-                    </div>
+
+                    </div>{/* end right-side */}
                 </div>
 
-                {/* Mobile Menu */}
-                {mobileMenuOpen && (
-                    <div style={{ borderTop: "1px solid #E5E7EB", padding: "12px 24px", background: "white" }}>
-                        {navLinks.map((link) => (
+                {/* Mobile: expanded search */}
+                {searchOpen && (
+                    <div style={{ padding: "10px 16px 12px", background: "white", borderTop: "1px solid #F1F5F9" }}>
+                        <form onSubmit={doSearch}>
+                            <div style={{ position: "relative" }}>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="Cari obat, vitamin, suplemen..."
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    style={{
+                                        width: "100%", padding: "10px 44px 10px 14px",
+                                        borderRadius: 10, border: "1.5px solid var(--primary)",
+                                        fontSize: 14, outline: "none",
+                                        fontFamily: "Inter,sans-serif",
+                                        boxSizing: "border-box",
+                                    }}
+                                />
+                                <button type="submit" style={{
+                                    position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                                    background: "var(--primary)", border: "none", borderRadius: 6,
+                                    padding: "6px", cursor: "pointer", display: "flex", alignItems: "center",
+                                }}>
+                                    <Search size={15} color="white" />
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* Mobile slide-down menu */}
+                {menuOpen && (
+                    <div style={{ background: "white", borderTop: "1px solid #F1F5F9", padding: "8px 16px 16px" }}>
+                        {NAV.map((l) => (
                             <Link
-                                key={link.href}
-                                href={link.href}
-                                onClick={() => setMobileMenuOpen(false)}
+                                key={l.href}
+                                href={l.href}
+                                onClick={() => setMenuOpen(false)}
                                 style={{
-                                    display: "block",
-                                    padding: "10px 0",
-                                    fontSize: 15,
-                                    fontWeight: 500,
-                                    color: "var(--gray-700)",
+                                    display: "flex", alignItems: "center",
+                                    padding: "12px 4px",
+                                    fontSize: 15, fontWeight: pathname === l.href ? 700 : 500,
+                                    color: pathname === l.href ? "var(--primary)" : "var(--gray-700)",
                                     textDecoration: "none",
                                     borderBottom: "1px solid #F3F4F6",
                                 }}
                             >
-                                {link.label}
+                                {l.label}
                             </Link>
                         ))}
+                        {isLoggedIn && (
+                            <Link href="/profile" onClick={() => setMenuOpen(false)} style={{ display: "block", padding: "12px 4px", fontSize: 14, color: "var(--gray-500)", textDecoration: "none" }}>
+                                👤 Profil saya
+                            </Link>
+                        )}
                     </div>
                 )}
             </nav>
 
             <style jsx global>{`
-        @media (max-width: 768px) {
-          .hidden-mobile { display: none !important; }
-          .show-mobile { display: flex !important; }
-        }
-        @media (min-width: 769px) {
-          .show-mobile { display: none !important; }
-        }
-      `}</style>
+              /* ── Responsive helpers ── */
+              @media (max-width: 768px) {
+                .desktop-nav    { display: none !important; }
+                .desktop-search { display: none !important; }
+                .mobile-only    { display: flex !important; }
+                .desktop-only   { display: none !important; }
+                .topbar-shipping { display: none !important; }
+              }
+              @media (min-width: 769px) {
+                .mobile-only    { display: none !important; }
+              }
+            `}</style>
         </>
     );
 }

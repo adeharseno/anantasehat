@@ -140,30 +140,29 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Slide Controls */}
-          <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Slide dot indicators */}
+          <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 8, alignItems: "center" }}>
             {bannerSlides.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
                 style={{
                   width: idx === currentSlide ? 24 : 8,
-                  height: 8,
-                  borderRadius: 4,
+                  height: 8, borderRadius: 4,
                   background: idx === currentSlide ? "white" : "rgba(255,255,255,0.4)",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  padding: 0,
+                  border: "none", cursor: "pointer",
+                  transition: "all 0.3s ease", padding: 0,
                 }}
               />
             ))}
           </div>
 
+          {/* Prev/Next arrows — hidden on mobile */}
           <button
+            className="slider-arrow"
             onClick={() => setCurrentSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length)}
             style={{
-              position: "absolute", left: 20, top: "50%", transform: "translateY(-50%)",
+              position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)",
               background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%",
               width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
               cursor: "pointer", backdropFilter: "blur(10px)", color: "white",
@@ -172,9 +171,10 @@ export default function HomePage() {
             <ChevronLeft size={20} />
           </button>
           <button
+            className="slider-arrow"
             onClick={() => setCurrentSlide((prev) => (prev + 1) % bannerSlides.length)}
             style={{
-              position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)",
+              position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)",
               background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%",
               width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
               cursor: "pointer", backdropFilter: "blur(10px)", color: "white",
@@ -186,21 +186,17 @@ export default function HomePage() {
 
         {/* Stats Bar */}
         <div style={{ background: "white", borderBottom: "1px solid #F1F5F9", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-          <div className="container-custom">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", textAlign: "center", padding: "20px 0" }}>
+          <div className="container-custom" style={{ padding: "0 16px" }}>
+            <div className="stats-bar">
               {[
-                { icon: <Shield size={20} color="var(--primary)" />, label: "Produk Asli Bergaransi" },
-                { icon: <Truck size={20} color="var(--primary)" />, label: "Pengiriman Cepat" },
-                { icon: <Clock size={20} color="var(--primary)" />, label: "Layanan 24/7" },
-                { icon: <Award size={20} color="var(--primary)" />, label: "Terdaftar BPOM" },
+                { icon: <Shield size={18} color="var(--primary)" />, label: "Produk Asli Bergaransi" },
+                { icon: <Truck size={18} color="var(--primary)" />, label: "Pengiriman Cepat" },
+                { icon: <Clock size={18} color="var(--primary)" />, label: "Layanan 24/7" },
+                { icon: <Award size={18} color="var(--primary)" />, label: "Terdaftar BPOM" },
               ].map((item, i) => (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  padding: "8px 12px",
-                  borderRight: i < 3 ? "1px solid #F1F5F9" : "none",
-                }}>
+                <div key={i} className="stats-item">
                   {item.icon}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--gray-700)" }}>{item.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--gray-700)", whiteSpace: "nowrap" }}>{item.label}</span>
                 </div>
               ))}
             </div>
@@ -279,39 +275,35 @@ export default function HomePage() {
 
       {/* Promo Banner */}
       <section style={{ padding: "20px 0 40px" }}>
-        <div className="container-custom">
-          <div style={{
+        <div className="container-custom" style={{ padding: "0 16px" }}>
+          <div className="promo-banner" style={{
             background: "linear-gradient(135deg, #00B4AA 0%, #0891B2 100%)",
-            borderRadius: 20,
-            padding: "32px 40px",
+            borderRadius: 16,
+            padding: "28px 32px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 24,
+            gap: 20,
             position: "relative",
             overflow: "hidden",
           }}>
-            <div style={{ position: "absolute", right: 180, opacity: 0.1, fontSize: 120 }}>🎁</div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
+            <div style={{ position: "absolute", right: 180, opacity: 0.08, fontSize: 100, pointerEvents: "none" }}>🎁</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: 1, marginBottom: 6, textTransform: "uppercase" }}>
                 🔥 Promo Spesial Hari Ini
               </div>
-              <h3 style={{ fontFamily: "Poppins, sans-serif", fontSize: 24, fontWeight: 700, color: "white", marginBottom: 6 }}>
+              <h3 style={{ fontFamily: "Poppins,sans-serif", fontSize: 20, fontWeight: 700, color: "white", marginBottom: 4 }}>
                 Gratis Ongkir untuk Semua Produk
               </h3>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
                 Minimum pembelian Rp150.000 • Berlaku hari ini saja!
               </p>
             </div>
             <Link href="/products" style={{
-              background: "white",
-              color: "#0891B2",
-              padding: "12px 28px",
-              borderRadius: 10,
-              textDecoration: "none",
-              fontWeight: 700,
-              fontSize: 14,
-              flexShrink: 0,
+              background: "white", color: "#0891B2",
+              padding: "11px 24px", borderRadius: 10,
+              textDecoration: "none", fontWeight: 700, fontSize: 14,
+              flexShrink: 0, whiteSpace: "nowrap",
               boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
             }}>
               Belanja Sekarang
@@ -333,7 +325,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+          <div className="featured-grid">
             {featuredProducts.slice(0, 8).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -422,6 +414,75 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <style jsx global>{`
+        /* Slider arrows: hide on mobile */
+        @media (max-width: 640px) {
+          .slider-arrow { display: none !important; }
+        }
+
+        /* Stats bar: horizontal scroll on mobile */
+        .stats-bar {
+          display: flex;
+          align-items: center;
+          padding: 14px 0;
+          gap: 0;
+        }
+        .stats-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          flex: 1;
+          padding: 8px 10px;
+          border-right: 1px solid #F1F5F9;
+        }
+        .stats-item:last-child { border-right: none; }
+
+        @media (max-width: 640px) {
+          .stats-bar {
+            overflow-x: auto;
+            scrollbar-width: none;
+            justify-content: flex-start;
+            padding: 12px 0;
+            gap: 0;
+          }
+          .stats-bar::-webkit-scrollbar { display: none; }
+          .stats-item {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            border-right: 1px solid #F1F5F9;
+          }
+        }
+
+        /* Promo banner: stack on mobile */
+        @media (max-width: 600px) {
+          .promo-banner {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding: 22px 20px !important;
+            border-radius: 14px !important;
+          }
+          .promo-banner a {
+            width: 100% !important;
+            text-align: center;
+          }
+        }
+
+        /* Featured products: 2 col on mobile */
+        .featured-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+          align-items: stretch;
+        }
+        @media (min-width: 640px) {
+          .featured-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
