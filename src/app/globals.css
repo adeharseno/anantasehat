@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 @import "tailwindcss";
 
@@ -34,7 +34,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Karla', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: #FAFBFC;
   color: var(--gray-800);
   -webkit-font-smoothing: antialiased;
@@ -47,7 +47,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Karla', sans-serif;
 }
 
 /* Custom scrollbar */
@@ -244,7 +244,7 @@ h6 {
   border: 1.5px solid var(--gray-200);
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Karla', sans-serif;
   color: var(--gray-800);
   background: white;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -292,7 +292,7 @@ input[type='checkbox']:checked {
   font-size: 26px;
   font-weight: 700;
   color: var(--gray-900);
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Karla', sans-serif;
 }
 
 .section-subtitle {
@@ -404,4 +404,11 @@ input[type='range']::-webkit-slider-thumb {
   stroke-width: 8;
   stroke-linecap: round;
   stroke-dasharray: 283;
+}
+
+/* Banner h1: smaller on mobile */
+@media (max-width: 640px) {
+  .banner-title {
+    font-size: 32px !important;
+  }
 }

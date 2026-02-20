@@ -118,8 +118,8 @@ export default function HomePage() {
                   }}>
                     {s.badge}
                   </div>
-                  <h1 style={{
-                    fontFamily: "Poppins, sans-serif", fontSize: 42, fontWeight: 800,
+                  <h1 className="banner-title" style={{
+                    fontFamily: "Karla, sans-serif", fontSize: 42, fontWeight: 800,
                     color: "white", lineHeight: 1.2, marginBottom: 16, whiteSpace: "pre-line",
                   }}>
                     {s.title}
