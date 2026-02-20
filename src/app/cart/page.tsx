@@ -21,7 +21,7 @@ export default function CartPage() {
     const shippingCost = subtotal >= 150000 ? 0 : 15000;
     const total = subtotal + shippingCost;
 
-    const handleRemove = (productId: number, productName: string) => {
+    const handleRemove = (productId: string | number, productName: string) => {
         removeFromCart(productId);
         showToast(`${productName} dihapus dari keranjang`, "warning");
     };
